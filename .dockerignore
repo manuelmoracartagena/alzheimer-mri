@@ -1,0 +1,48 @@
+# --- VERSION CONTROL ---
+.git
+.gitignore
+.gitattributes
+
+# --- PYTHON / VENV / LOCAL DEPENDENCIES ---
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+ENV/
+env/
+.venv/
+eggs/
+.eggs/
+*.egg-info/
+*.egg
+
+# --- DATA ---
+data/
+
+# --- CONFIGURATION & SECRETS ---
+.env
+.env.local
+
+# --- IDE & OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
+# --- DOCKER FILES ---
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# --- LOGS & TEMPORARY FILES ---
+logs/
+*.log
+tmp/
+*.tmp
+
+# --- DOCUMENTATION & CI/CD ---
+docs/
+README.md
+LICENSE
+.github/

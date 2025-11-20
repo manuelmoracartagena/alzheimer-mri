@@ -1,0 +1,31 @@
+# --- PYTHON / VENV / LOCAL DEPENDENCIES ---
+# Python virtual environment
+venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+
+# Compiled extensions
+*.so
+
+# --- DATA, LOG & ARCHIVE DIRECTORIES  ---
+# Ignore ALL content inside data/, but keep the folder structure
+data/**
+!data/*/
+!data/.gitkeep
+
+# Ignore all content inside logs/, but keep the folder with .gitkeep
+logs/**
+!logs/.gitkeep
+
+# Ignore archive
+archive/
+
+# --- EDITORS / OPERATING SYSTEM  ---
+# VSCode settings
+.vscode/
+
+

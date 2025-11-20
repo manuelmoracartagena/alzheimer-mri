@@ -1,0 +1,58 @@
+"""
+Configuration file for Model_3 — a flexible Convolutional Neural Network (CNN)
+for image classification with 4 output classes.
+
+This file defines the default hyperparameters and architectural settings
+used to initialize the model. It supports optional Batch Normalization,
+Dropout, and DropBlock regularization mechanisms.
+"""
+
+MODEL_CONFIG = {
+    # -------------------------------------------------------------------------
+    # Regularization options
+    # -------------------------------------------------------------------------
+    "use_batchnorm": False,   # Enable Batch Normalization after each Conv layer
+    "use_dropout": False,     # Enable Dropout regularization
+    "use_dropblock": False,   # Enable DropBlock regularization
+    # Note: Dropout and DropBlock cannot be enabled simultaneously.
+
+    # -------------------------------------------------------------------------
+    # Regularization parameters
+    # -------------------------------------------------------------------------
+    "bn_momentum": 0.01,      # Momentum for Batch Normalization
+    "p": 0.5,                 # Dropout or DropBlock probability
+    "block_size": 5,          # Block size for DropBlock2d
+
+    # -------------------------------------------------------------------------
+    # Convolutional architecture
+    # -------------------------------------------------------------------------
+    # Initial 3-branch parallel convolutions (outputs are concatenated)
+    "conv01_out": 32,         # Output channels for each initial branch
+    "conv01_kernel_a": 5,     # Branch A: kernel size
+    "conv01_pad_a": 2,        # Branch A: padding
+    "conv01_dil_a": 1,        # Branch A: dilation
+    "conv01_kernel_b": 5,     # Branch B: kernel size
+    "conv01_pad_b": 2,        # Branch B: padding
+    "conv01_dil_b": 1,        # Branch B: dilation
+    "conv01_kernel_c": 5,     # Branch C: kernel size
+    "conv01_pad_c": 2,        # Branch C: padding
+    "conv01_dil_c": 1,        # Branch C: dilation
+
+    # Channel list for the main stack (post-concatenation)
+    # 1st value (96) must equal conv01_out * 3
+    "channels": [96, 128, 128, 256, 512, 1024, 2048, 4096, 8192],
+
+    "kernel_sizes": [5, 3, 3, 3, 3, 3, 3, 3], # Kernel sizes (1st=5x5, rest=3x3)
+    "padding": [(2, 2)] + [(1, 1)] * 7,       # Padding (1st=(2,2), rest=(1,1))
+
+    # Common convolution settings
+    "stride": 1,              # Stride value for all convolutional layers
+    "activation": "ReLU",     # Activation function used after each convolution
+    "pooling": "MaxPool2d(2x2)",  # Pooling operation applied after each conv
+
+    # -------------------------------------------------------------------------
+    # Fully connected layer
+    # -------------------------------------------------------------------------
+    "linear_in_features": 8192,   # Flattened feature dimension before the FC layer
+    "linear_out_features": 4      # Number of output classes
+}
