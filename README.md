@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🧠 Alzheimer's stage diagnosis using Deep Learning
+# 🧠 Alzheimer's stage diagnosis using deep learning
 
 <!-- 📄 **Report**: [Insert Link to Paper/Report]   -->
 💻 **Code**: This repository  
