@@ -17,7 +17,7 @@
 
 <div align="justify">
 
-Early diagnosis of Alzheimer's Disease (AD) is crucial for effective patient care. This repository hosts a **comprehensive Deep Learning framework** designed to classify MRI slices into distinct stages of dementia.
+Early diagnosis of Alzheimer's Disease (AD) is crucial for effective patient care. This repository hosts a **comprehensive deep learning pipeline** designed to classify MRI slices into distinct stages of dementia.
 
 This project explores the performance trade-offs between **Convolutional Neural Networks (CNNs)**, **Residual Neural Networks (ResNet)** and **Vision Transformers (ViT)** applied to medical imaging. This repository provides a fully reproducible training pipeline equipped with automated reporting and Weights & Biases integration.
 
