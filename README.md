@@ -15,9 +15,15 @@
 
 ## 🚀 Introduction
 
+<div align="justify">
+
 Early diagnosis of Alzheimer's Disease (AD) is crucial for effective patient care. This repository hosts a **comprehensive Deep Learning framework** designed to classify MRI slices into distinct stages of dementia.
 
 This project explores the performance trade-offs between **Convolutional Neural Networks (CNNs)**, **Residual Neural Networks (ResNet)** and **Vision Transformers (ViT)** applied to medical imaging. This repository provides a fully reproducible training pipeline equipped with automated reporting and Weights & Biases integration.
+
+</div>
+
+
 ### 🔑 Key Features:
 - **Multi-Architecture Support**: Seamless switching between custom CNNs, ResNet and ViT.
 - **Robust Evaluation**: Supports Stratified K-Fold Cross-Validation and Simple Splits (Train/Val/Test).
@@ -30,7 +36,7 @@ This project explores the performance trade-offs between **Convolutional Neural 
 ## 📂 Repository Structure
 
 ```plaintext
-alzheimer_mri/
+alzheimer-mri/
 │── 🗂️ data/              # Dataset directory (Images or .npy files)
 │── 📈 logs/              # Logs directory for wandb runs
 │── 🔧 scripts/           # Scripts for configuring environment
@@ -150,7 +156,7 @@ This will generate standardized images, all of the same size, in `data/kaggle/re
 ```bash
 python src/tools/prepare_data_adni.py
 ```
-This will convert Nifti files (`.nii`) to preprocessed slices and create train/val/test splits
+This will convert Nifti files (`.nii`) to preprocessed slices and create train/val/test splits.
 
 ### 🧪 Basic Training
 ```bash
@@ -160,7 +166,7 @@ python src/main.py
 ### ⚙️ Configuration
 
 **Training Hyperparameters** can be customized in `configs/config.py`:
-- Learning rate, batch size, epochs, optimizer, loss function, dataset, model selection, cross-validation
+- Learning rate, batch size, epochs, optimizer, loss function, dataset, model selection, cross-validation.
 
 **Model Architecture & Regularization** can be adjusted in individual model config files:
 - `cnn_1_config.py`, `cnn_2_config.py`, `cnn_3_config.py`
