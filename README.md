@@ -45,8 +45,8 @@ alzheimer-mri/
 │   ├── 🧠 models/        # Architecture definitions (ViT, ResNet, CNNs)
 │   ├── 🧩 utils/         # Metrics, dataloaders, model factory
 │   ├── 📊 eval.py        # Evaluation script
-│   ├── 🧪 train.py       # Training script
-│   └── 🐍 main.py        # Main entry point for the pipeline
+│   ├── 🐍 main.py        # Main entry point for the pipeline
+│   └── 🧪 train.py       # Training script
 │── 🐳 Dockerfile         # Docker setup
 │── ⚖️ LICENSE            # License information
 │── 📘 README.md          # Project documentation
