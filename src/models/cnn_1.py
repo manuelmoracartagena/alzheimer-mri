@@ -1,16 +1,12 @@
 """
 This Python script defines a flexible Convolutional Neural Network for classification.
-It supports optional Batch Normalization, Dropout, and DropBlock regularization.
-It is configured via the 'configs/cnn_1_config.yaml' file.
+It is configured dynamically via a dictionary passed during initialization.
 """
 
 import torch
 from torch import nn
 from torchvision.ops import DropBlock2d
-from typing import Optional
-
-# Import the model configuration
-from configs.cnn_1_config import MODEL_CONFIG
+from typing import Optional, Dict, Any
 
 class Cnn_1(nn.Module):
     """
@@ -18,43 +14,49 @@ class Cnn_1(nn.Module):
     Supports optional Batch Normalization, Dropout, and DropBlock regularization.
     """
 
-    def __init__(
-        self,
-        use_batchnorm: bool = MODEL_CONFIG["use_batchnorm"],
-        use_dropout: bool = MODEL_CONFIG["use_dropout"],
-        use_dropblock: bool = MODEL_CONFIG["use_dropblock"],
-        p: float = MODEL_CONFIG["p"],
-        block_size: int = MODEL_CONFIG["block_size"],
-        bn_momentum: float = MODEL_CONFIG["bn_momentum"],
-        linear_out_features: int = MODEL_CONFIG["linear_out_features"]
-    ) -> None:
+    def __init__(self, config: Dict[str, Any], linear_out_features: int) -> None:
         super().__init__()
 
-        # --- Type hints for class attributes ---
+        # --- Extract configuration from the dictionary ---
+        use_batchnorm = config.get("use_batchnorm", False)
+        use_dropout = config.get("use_dropout", False)
+        use_dropblock = config.get("use_dropblock", False)
+        p = config.get("p", 0.5)
+        block_size = config.get("block_size", 5)
+        bn_momentum = config.get("bn_momentum", 0.01)
+        
+        channels = config["channels"]
+        kernel_sizes = config["kernel_sizes"]
+        padding = config["padding"]
+        stride = config.get("stride", 1)
+        linear_in_features = config["linear_in_features"]
+
+        # --- Class Attributes ---
         self.convs: nn.ModuleList
         self.bns: Optional[nn.ModuleList]
         self.drop_layers: Optional[nn.ModuleList]
         self.linear_at_output: nn.Linear
-        self.use_batchnorm: bool = use_batchnorm
-        self.use_dropout: bool = use_dropout
-        self.use_dropblock: bool = use_dropblock
-        # --- End type hints ---
+        self.use_batchnorm = use_batchnorm
+        self.use_dropout = use_dropout
+        self.use_dropblock = use_dropblock
 
         if use_dropout and use_dropblock:
             raise ValueError("Cannot use both Dropout and DropBlock simultaneously.")
 
-        channels = MODEL_CONFIG["channels"]
         self.convs = nn.ModuleList()
 
         # Create convolutional layers
         for i in range(len(channels) - 1):
-            kernel = MODEL_CONFIG["kernel_sizes"][i]
-            pad = MODEL_CONFIG["padding"][i]
+            # Handle padding: YAML might load it as a list, convert to tuple if needed
+            pad = padding[i]
+            if isinstance(pad, list):
+                pad = tuple(pad)
+
             conv = nn.Conv2d(
                 in_channels=channels[i],
                 out_channels=channels[i + 1],
-                kernel_size=kernel,
-                stride=MODEL_CONFIG["stride"],
+                kernel_size=kernel_sizes[i],
+                stride=stride,
                 padding=pad
             )
             self.convs.append(conv)
@@ -81,14 +83,16 @@ class Cnn_1(nn.Module):
 
         # Fully connected output
         self.linear_at_output = nn.Linear(
-            in_features=MODEL_CONFIG["linear_in_features"],
+            in_features=linear_in_features,
             out_features=linear_out_features
         )
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         x = inputs
+        
+        # We need to flatten specifically to the size defined in config
+        flat_dim = self.linear_at_output.in_features
 
-        # Loop through the the convolutional layers
         for i, conv in enumerate(self.convs):
             x = conv(x)
 
@@ -106,8 +110,8 @@ class Cnn_1(nn.Module):
             if i < len(self.convs) - 1:
                 x = nn.functional.max_pool2d(x, (2, 2))
 
-        # Flatten before the linear layer
-        x = x.view(-1, MODEL_CONFIG["linear_in_features"])
+        # Flatten
+        x = x.view(-1, flat_dim)
 
         # Fully connected output
         logits = self.linear_at_output(x)

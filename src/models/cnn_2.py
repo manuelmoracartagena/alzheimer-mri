@@ -1,83 +1,72 @@
 """
 This Python script defines a flexible Convolutional Neural Network for classification.
-It supports optional Batch Normalization, Dropout, and DropBlock regularization.
-Includes two initial convolutions concatenated along channel dimension.
-It is configured via the 'configs/cnn_2_config.yaml' file.
+It is configured dynamically via a dictionary passed during initialization.
 """
 
 import torch
 from torch import nn
 from torchvision.ops import DropBlock2d
-from typing import Optional
-
-# Import the model configuration
-from configs.cnn_2_config import MODEL_CONFIG  
+from typing import Optional, Dict, Any
 
 class Cnn_2(nn.Module):
     """
     Convolutional Neural Network with two initial convolutions concatenated 
     for classification.
-    Supports optional Batch Normalization, Dropout, and DropBlock regularization.
     """
 
-    def __init__(
-        self,
-        use_batchnorm: bool = MODEL_CONFIG["use_batchnorm"],
-        use_dropout: bool = MODEL_CONFIG["use_dropout"],
-        use_dropblock: bool = MODEL_CONFIG["use_dropblock"],
-        p: float = MODEL_CONFIG["p"],
-        block_size: int = MODEL_CONFIG["block_size"],
-        bn_momentum: float = MODEL_CONFIG["bn_momentum"],
-        linear_out_features: int = MODEL_CONFIG["linear_out_features"]
-    ) -> None:
+    def __init__(self, config: Dict[str, Any], linear_out_features: int) -> None:
         super().__init__()
 
-        # --- Type hints for class attributes ---
-        self.conv_01_a: nn.Conv2d
-        self.conv_01_b: nn.Conv2d
-        self.convs: nn.ModuleList
-        self.bns: Optional[nn.ModuleList]
-        self.drop_layers: Optional[nn.ModuleList]
-        self.linear_at_output: nn.Linear
-        self.use_batchnorm: bool = use_batchnorm
-        self.use_dropout: bool = use_dropout
-        self.use_dropblock: bool = use_dropblock
-        # --- End type hints ---
+        # --- Extract configuration ---
+        use_batchnorm = config.get("use_batchnorm", False)
+        use_dropout = config.get("use_dropout", False)
+        use_dropblock = config.get("use_dropblock", False)
+        p = config.get("p", 0.5)
+        block_size = config.get("block_size", 5)
+        bn_momentum = config.get("bn_momentum", 0.01)
+        stride = config.get("stride", 1)
+        linear_in_features = config["linear_in_features"]
+
+        self.use_batchnorm = use_batchnorm
+        self.use_dropout = use_dropout
+        self.use_dropblock = use_dropblock
 
         if use_dropout and use_dropblock:
             raise ValueError("Cannot use both Dropout and DropBlock simultaneously.")
 
         # First two convolutions (input channels fixed to 1)
         self.conv_01_a = nn.Conv2d(
-            in_channels=1, out_channels=MODEL_CONFIG["conv01_out"], 
-            kernel_size=MODEL_CONFIG["conv01_kernel_a"], 
-            stride=MODEL_CONFIG["stride"], 
-            padding=MODEL_CONFIG["conv01_pad_a"], 
-            dilation=MODEL_CONFIG["conv01_dil_a"]
+            in_channels=1, out_channels=config["conv01_out"], 
+            kernel_size=config["conv01_kernel_a"], 
+            stride=stride, 
+            padding=config["conv01_pad_a"], 
+            dilation=config["conv01_dil_a"]
         )
         self.conv_01_b = nn.Conv2d(
-            in_channels=1, out_channels=MODEL_CONFIG["conv01_out"], 
-            kernel_size=MODEL_CONFIG["conv01_kernel_b"], 
-            stride=MODEL_CONFIG["stride"], 
-            padding=MODEL_CONFIG["conv01_pad_b"], 
-            dilation=MODEL_CONFIG["conv01_dil_b"]
+            in_channels=1, out_channels=config["conv01_out"], 
+            kernel_size=config["conv01_kernel_b"], 
+            stride=stride, 
+            padding=config["conv01_pad_b"], 
+            dilation=config["conv01_dil_b"]
         )
 
         # Rest of the convolutional layers
-        channels = MODEL_CONFIG["channels"] 
-        kernel_sizes = MODEL_CONFIG["kernel_sizes"]
-        padding = MODEL_CONFIG["padding"]
+        channels = config["channels"] 
+        kernel_sizes = config["kernel_sizes"]
+        padding = config["padding"]
 
         self.convs = nn.ModuleList()
 
-        # Create convolutional layers after the initial two convolutions
         for i in range(len(channels) - 1):
+            pad = padding[i]
+            if isinstance(pad, list): pad = tuple(pad)
+
             conv = nn.Conv2d(
                 in_channels=channels[i],
                 out_channels=channels[i + 1],
                 kernel_size=kernel_sizes[i],
-                stride=MODEL_CONFIG["stride"],
-                padding=padding[i]
+                stride=stride,
+                padding=pad
             )
             self.convs.append(conv)
 
@@ -103,7 +92,7 @@ class Cnn_2(nn.Module):
 
         # Fully connected output
         self.linear_at_output = nn.Linear(
-            in_features=MODEL_CONFIG["linear_in_features"],
+            in_features=linear_in_features,
             out_features=linear_out_features
         )
 
@@ -115,7 +104,8 @@ class Cnn_2(nn.Module):
         x = nn.functional.relu(x)
         x = nn.functional.max_pool2d(x, (2, 2))
 
-        # Loop through the rest of the convolutional layers
+        flat_dim = self.linear_at_output.in_features
+
         for i, conv in enumerate(self.convs):
             x = conv(x)
 
@@ -129,13 +119,9 @@ class Cnn_2(nn.Module):
                 if drop_layer is not None:
                     x = drop_layer(x)
 
-            # Max pooling except for the last layer
             if i < len(self.convs) - 1:
                 x = nn.functional.max_pool2d(x, (2, 2))
 
-        # Flatten before the linear layer
-        x = x.view(-1, MODEL_CONFIG["linear_in_features"])
-
-        # Fully connected output
+        x = x.view(-1, flat_dim)
         logits = self.linear_at_output(x)
         return logits

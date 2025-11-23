@@ -1,0 +1,108 @@
+# Configuration file for model training settings and shared instances.
+#
+# This file defines all necessary paths, selects the active dataset,
+# and builds the final training configuration dictionary (TRAIN_CONFIG)
+# by merging dataset-specific settings with common hyperparameters.
+
+# -------------------------------------------------------------------------
+# 1. PATH CALCULATION & ENVIRONMENT SETUP
+# -------------------------------------------------------------------------
+# Note: Paths are relative to the PROJECT_ROOT. The loader must resolve these.
+
+paths:
+  # --- Data Paths ---
+  data_ds_kaggle_dir: "data/kaggle/resized"    # Path to Dataset 1 (4 classes, images)
+  data_ds_adni_dir: "data/adni"                # Path to Dataset 2 (3 classes, .npy files loaded via .txt manifests)
+
+  # --- Output Paths ---
+  save_dir: "data/weights"    # Directory to save trained model weights
+  tmp_dir: "data/tmp"         # Directory for temporary files (e.g., cached data)
+  logs_dir: "logs"            # Directory for logging outputs
+
+# -------------------------------------------------------------------------
+# 2. DETAILED DATASET CONFIGURATIONS
+# -------------------------------------------------------------------------
+
+datasets:
+  # --- DATASET KAGGLE (Images, 4 Classes, loaded "on the fly") ---
+  kaggle:
+    name: "kaggle_dataset"
+    # Path key refers to the key in the 'paths' section above
+    data_base_dir_key: "data_ds_kaggle_dir"
+    num_classes: 4
+    class_names: ["MildDemented", "ModerateDemented", "NonDemented", "VeryMildDemented"]
+    input_type: "image"  # Loader will handle .png, .jpg, etc.
+
+    # "on_the_fly": Scans 'data_base_dir' and splits data dynamically.
+    split_type: "on_the_fly"
+    data_strategy: "cross_validation"  # "cross_validation" or "simple_split"
+
+    # "on_the_fly" split settings
+    split_random_state: 42   # For reproducible splits
+    test_split_size: 0.2     # 20% of data for the final test set
+    val_split_size: 0.25     # 25% of *remaining* (train+val) data for validation
+    n_splits_cv: 5           # Number of folds for cross-validation
+
+    # --- FOLD SELECTION ---
+    # If data_strategy is "simple_split", this MUST be [0].
+    # If "cross_validation", set to the folds you want to run (e.g., [0, 1, 2, 3, 4])
+    folds_to_run: [0]
+
+    # Dataset-specific options
+    augment_train: false        # Apply data augmentation to the training set?
+    use_weighted_sampler: false  # Balance classes in the training loader?
+
+  # --- DATASET ADNI (NPY, 3 Classes, loaded from pre-defined TXT files) ---
+  adni:
+    name: "adni_dataset"
+    # Path key refers to the key in the 'paths' section above
+    data_base_dir_key: "data_ds_adni_dir" # Loader will look for .txt files here
+    num_classes: 3
+    class_names: ["CN", "MCI", "AD"]      # Must match the label map
+    input_type: "numpy"                   # Loader will load .npy files specified in .txt
+
+    # "pre_split_txt": Loads train/val/test paths from fixed .txt files.
+    split_type: "pre_split_txt"
+
+    # These options are fixed for this dataset type
+    data_strategy: "simple_split"
+    folds_to_run: [0]  # Only one "fold" exists (the pre-defined split)
+
+    # Dataset-specific options
+    augment_train: false     # Apply data augmentation to the training set?
+    use_weighted_sampler: true  # Balance classes in the training loader?
+
+# -------------------------------------------------------------------------
+# 3. ACTIVE DATASET SELECTION
+# -------------------------------------------------------------------------
+# Options: "kaggle" or "adni" (Must match keys in 'datasets' above)
+active_dataset: "adni"
+
+# -------------------------------------------------------------------------
+# 4. FINAL TRAINING CONFIGURATION DICTIONARY
+# -------------------------------------------------------------------------
+# These settings will be merged with the active dataset configuration.
+
+common_hyperparameters:
+  # --- Hyperparameters ---
+  batch_size: 16
+  learning_rate: 0.000011
+  epochs: 1
+  optimizer: "AdamW"
+  weight_decay: 0.0001
+
+  # --- Model Selection ---
+  # Models to train (Options: "Cnn_1", "Cnn_2", "Cnn_3", "ResNet", "ViT".)
+  models: ["Cnn_1"]
+
+  # --- Environment & Runtime ---
+  # Note: 'device' logic (cuda vs cpu) should be handled in Python code
+  save_weights: false                     # Save the best model weights?
+  
+  # Output keys refer to the keys in the 'paths' section above
+  save_dir_key: "save_dir"
+  tmp_dir_key: "tmp_dir"
+
+  # --- Logging ---
+  log_dir_key: "logs_dir"
+  wandb_project: "alzheimer-mri"           # Weights & Biases project name

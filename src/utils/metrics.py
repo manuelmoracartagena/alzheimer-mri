@@ -15,17 +15,9 @@ from typing import Dict, List, Any
 from pathlib import Path
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix, accuracy_score
 
-
 def calculate_metrics(y_true: List[int], y_pred: List[int]) -> Dict[str, float]:
     """
     Calculates various classification metrics.
-
-    Args:
-        y_true (List[int]): True ground truth labels.
-        y_pred (List[int]): Predicted labels.
-
-    Returns:
-        Dict[str, float]: Dictionary containing calculated metrics.
     """
     accuracy = accuracy_score(y_true, y_pred)
     precision_weighted = precision_score(y_true, y_pred, average="weighted", zero_division=0)
@@ -49,26 +41,21 @@ def calculate_metrics(y_true: List[int], y_pred: List[int]) -> Dict[str, float]:
 def plot_confusion_matrix(y_true: List[int], y_pred: List[int], config: Dict[str, Any]) -> str:
     """
     Generates and saves a visualization of the confusion matrix.
-
+    
     Args:
         y_true (List): True labels.
         y_pred (List): Predicted labels.
-        config (Dict): Configuration dictionary for paths.
+        config (Dict): Configuration dictionary containing 'tmp_dir'.
 
     Returns:
         str: The file path of the saved confusion matrix image.
     """
-    # --- NOTE ---
-    # The order MUST match the 'enumerate' in datasplitter.py / dataloader
-    # 0: "MildDemented"
-    # 1: "ModerateDemented"
-    # 2: "NonDemented"
-    # 3: "VeryMildDemented"
-    class_names = ["MildDemented", "ModerateDemented", "NonDemented", "VeryMildDemented"]
+    # Use class names from config if available, otherwise default
+    class_names = config.get("class_names", ["Class 0", "Class 1", "Class 2", "Class 3"])
     
     cm = confusion_matrix(y_true, y_pred)
-    plt.figure(figsize=(10, 7))            # Adjusted for manageable size
-    plt.rcParams.update({'font.size': 10}) # Smaller font size
+    plt.figure(figsize=(10, 7))            
+    plt.rcParams.update({'font.size': 10}) 
     sns.heatmap(
         cm, 
         annot=True, 
@@ -84,11 +71,16 @@ def plot_confusion_matrix(y_true: List[int], y_pred: List[int], config: Dict[str
     plt.tight_layout()
     plt.title("Confusion Matrix")
 
+    # Access tmp_dir from config (it is now a Path object)
     tmp_dir = config["tmp_dir"]
-    os.makedirs(tmp_dir, exist_ok=True)
     
-    # Use a unique temporary filename to avoid collisions
-    cm_image_path = tmp_dir / f"cm_{wandb.run.id if wandb.run else 'temp'}.png"
+    # Ensure directory exists (redundant if config_loader worked, but safe)
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Use a unique temporary filename
+    run_id = wandb.run.id if wandb.run else 'temp'
+    cm_image_path = tmp_dir / f"cm_{run_id}.png"
+    
     plt.savefig(cm_image_path)
     plt.close()
     
@@ -98,9 +90,6 @@ def plot_confusion_matrix(y_true: List[int], y_pred: List[int], config: Dict[str
 def print_final_metrics(model_metrics: Dict[str, Dict[str, List[float]]]) -> None:
     """
     Prints the aggregated final metrics for each model (Mean +/- Std Dev).
-
-    Args:
-        model_metrics (Dict): Dictionary containing metrics lists per model.
     """
     print("\n--- Final Results per Model (Mean ± Standard Deviation) ---")
     
@@ -111,11 +100,9 @@ def print_final_metrics(model_metrics: Dict[str, Dict[str, List[float]]]) -> Non
 
         print(f"\n✨ Model: {model_name}")
         
-        # Iterate over all collected metrics
         for metric_name, values in metrics.items():
             if values:
                 mean = np.mean(values)
                 std = np.std(values)
-                # Format metric name for better readability
                 display_name = metric_name.replace('_', ' ').replace('-', ' ').title()
                 print(f"   - Mean {display_name}: {mean:.4f} ± {std:.4f}")

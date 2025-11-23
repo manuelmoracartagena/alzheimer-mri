@@ -7,10 +7,19 @@ Weights & Biases (WandB) logging, and orchestrates the training and testing phas
 """
 
 import copy
+import torch
 import wandb
+import sys
+import os
 from collections import defaultdict
+from pathlib import Path
 
-from configs.config import TRAIN_CONFIG as config
+# Adjust sys.path to ensure we can import modules if running from root
+current_dir = Path(__file__).resolve().parent
+sys.path.append(str(current_dir))
+
+# Import local modules
+from utils.config_loader import load_main_config
 from data.dataloader import get_dataloaders 
 from utils.metrics import print_final_metrics
 from utils.model_factory import create_model 
@@ -21,20 +30,28 @@ from eval import run_evaluation_fold
 def main() -> None:
     """
     Main function to execute the experiment pipeline.
-    
-    Steps:
-    1. Reads configuration settings.
-    2. Iterates through the list of models defined in the config.
-    3. Generates DataLoaders specific to the model (handling resizing if necessary).
-    4. Initializes the model architecture.
-    5. Iterates through the requested folds (Cross-Validation or Simple Split).
-    6. Runs training and evaluation for each fold.
-    7. Aggregates and prints final metrics.
     """
+    
+    # 1. Load Configuration (YAML) & Resolve Paths
+    try:
+        config = load_main_config()
+    except Exception as e:
+        print(f"CRITICAL ERROR: Could not load configuration. {e}")
+        return
+
+    # 2. Setup Device
+    device_name = "cuda:0" if torch.cuda.is_available() else "cpu"
+    config["device"] = torch.device(device_name)
+    
+    # 3. Setup Environment Variables (e.g. for WandB)
+    # We use the resolved 'logs_dir' path
+    os.environ["WANDB_DIR"] = str(config["logs_dir"])
 
     strategy = config.get("data_strategy", "simple_split") 
 
     print(f"Selected device: {config['device']}")
+    print(f"Project Root: {config['project_root']}")
+    print(f"Weights Save Dir: {config['save_dir']}")
 
     # Dictionary to store aggregated metrics for all models
     all_model_metrics = defaultdict(lambda: defaultdict(list))
@@ -53,10 +70,15 @@ def main() -> None:
         print(f"\n--- Processing model: {model_name} ---")
 
         # --- DATA LOADING ---
+        # The dataloader receives the full config, which now contains 
+        # the absolute path to 'data_base_dir'
         try:
             all_fold_dataloaders = get_dataloaders(config, model_name=model_name)
         except FileNotFoundError as e:
             print(f"\nERROR: Could not load data for {model_name}. Error: {e}")
+            continue
+        except Exception as e:
+            print(f"\nERROR: Unexpected error loading data: {e}")
             continue
 
         if len(folds_to_run) != len(all_fold_dataloaders):
@@ -65,9 +87,10 @@ def main() -> None:
         
         # --- MODEL INITIALIZATION ---
         try:
+            # Factory loads the specific model yaml from ROOT/configs
             model_instance = create_model(model_name, num_classes=num_classes)
         except Exception as e:
-             print(f"WARNING: 'create_model' failed. Using a placeholder. Error: {e}")
+             print(f"WARNING: 'create_model' failed. Error: {e}")
              continue
         # --- END MODEL INITIALIZATION ---
 
@@ -76,19 +99,25 @@ def main() -> None:
             
             fold_display_num = fold_index + 1
             run_label = f"Fold {fold_display_num}" if strategy == "cross_validation" else "Run"
+            
+            # Prepare config for WandB (convert Paths to strings, remove objects)
+            config_for_wandb = {k: str(v) if isinstance(v, Path) else v for k, v in config.items()}
+            if "device" in config_for_wandb: del config_for_wandb["device"] 
+
             wandb_run_name = f"{model_name}_fold{fold_display_num}" if strategy == "cross_validation" else f"{model_name}_simple_split"
             
             print(f"\n- Executing {run_label}")
 
-            # Initialize W&B for the current fold
+            # Initialize W&B
             run = wandb.init(
                 project=config["wandb_project"],
-                config=config,
+                config=config_for_wandb,
                 name=wandb_run_name, 
-                reinit=True 
+                reinit=True,
+                dir=str(config["logs_dir"]) 
             )
 
-            # Create a deep copy of the model to ensure fresh weights for each fold
+            # Deep copy model to reset weights for this fold
             model_for_fold = copy.deepcopy(model_instance)
 
             print(f"{run_label} - Starting training...")
@@ -111,7 +140,7 @@ def main() -> None:
                 model_name=model_name
             )
 
-            # Aggregate metrics for final reporting
+            # Aggregate metrics
             for key, value in fold_metrics.items():
                 all_model_metrics[model_name][key].append(value)
 
