@@ -29,4 +29,6 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 echo "-> Installing dependencies from requirements.txt"
 pip install -r "$SCRIPT_DIR/../requirements.txt"
 
+source "$VENV_DIR/bin/activate"
+
 echo "=== Environment setup complete ==="

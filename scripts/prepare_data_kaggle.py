@@ -117,7 +117,7 @@ def main():
     print(f"{'#'*60}")
 
     # --- Configuration: Paths ---
-    project_root = Path(__file__).resolve().parent.parent.parent
+    project_root = Path(__file__).resolve().parent.parent
     
     # Input directories
     input_folders = [

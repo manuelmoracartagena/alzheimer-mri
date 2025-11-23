@@ -11,11 +11,11 @@ import wandb
 from collections import defaultdict
 
 from configs.config import TRAIN_CONFIG as config
-from utils.dataloader import get_dataloaders 
+from data.dataloader import get_dataloaders 
 from utils.metrics import print_final_metrics
 from utils.model_factory import create_model 
-from utils.train import run_training_fold
-from utils.eval import run_evaluation_fold
+from train import run_training_fold
+from eval import run_evaluation_fold
 
 # --- Main Execution ---
 def main() -> None:

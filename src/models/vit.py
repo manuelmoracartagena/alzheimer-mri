@@ -1,6 +1,6 @@
 """
 This Python script defines a Vision Transformer model for classification.
-It is configured via the 'configs/vit_config.py' file.
+It is configured via the 'configs/vit_config.yaml' file.
 """
 
 import torch

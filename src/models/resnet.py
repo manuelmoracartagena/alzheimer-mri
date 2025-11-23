@@ -1,7 +1,7 @@
 """
 This Python script defines a ResNet model for classification.
 It supports optional Dropout regularization.
-It is configured via the 'configs/resnet_config.py' file.
+It is configured via the 'configs/resnet_config.yaml' file.
 """
 
 import torch

@@ -39,11 +39,11 @@ This project explores the performance trade-offs between **Convolutional Neural 
 alzheimer-mri/
 │── 🗂️ data/              # Dataset directory (Images or .npy files)
 │── 📈 logs/              # Logs directory for wandb runs
-│── 🔧 scripts/           # Scripts for configuring environment
+│── 🔧 scripts/           # Scripts for configuring environment and datasets preprocess
 │── 📂 src/               # Core implementation
 │   ├── ⚙️ configs/       # Configuration for training and models
 │   ├── 🧠 models/        # Architecture definitions (ViT, ResNet, CNNs)
-│   ├── 🛠️ tools/         # Datasets preprocess scripts
+│   ├── 🛠️ tools/         # 
 │   ├── 🧩 utils/         # Metrics, Dataloaders, Model Factory
 │   └── 🐍 main.py        # Main entry point for the pipeline
 │── 🐳 Dockerfile         # Docker setup

@@ -1,7 +1,7 @@
 """
 This Python script defines a flexible Convolutional Neural Network for classification.
 It supports optional Batch Normalization, Dropout, and DropBlock regularization.
-It is configured via the 'configs/cnn_1_config.py' file.
+It is configured via the 'configs/cnn_1_config.yaml' file.
 """
 
 import torch

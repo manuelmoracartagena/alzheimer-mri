@@ -356,7 +356,7 @@ def main():
     print(f"{'#'*60}")
 
     # --- CONFIGURATION ---
-    PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+    PROJECT_ROOT = Path(__file__).resolve().parent.parent
     ADNI_DIR = PROJECT_ROOT / 'data' / 'adni'
     DATASET_ROOT_DIR = str(ADNI_DIR)
     
