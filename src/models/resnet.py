@@ -1,3 +1,4 @@
+# src/models/resnet.py
 """
 This Python script defines a ResNet model for classification.
 It is configured dynamically via a dictionary passed during initialization.
@@ -65,13 +66,13 @@ class ResNet(nn.Module):
         super().__init__()
 
         # --- Extract Config ---
-        in_channels = config.get("in_channels", 1)
-        block_type_str = config.get("block_type", "BasicBlock")
-        layers = config.get("layers", [2, 2, 2, 2])
-        planes_list = config.get("planes", [64, 128, 256, 512])
-        initial_planes = config.get("initial_planes", 64)
-        use_dropout = config.get("use_dropout", False)
-        dropout_p = config.get("dropout_p", 0.3)
+        in_channels: int = config.get("in_channels", 1)
+        block_type_str: str = config.get("block_type", "BasicBlock")
+        layers: List[int] = config.get("layers", [2, 2, 2, 2])
+        planes_list: List[int] = config.get("planes", [64, 128, 256, 512])
+        initial_planes: int = config.get("initial_planes", 64)
+        use_dropout: bool = config.get("use_dropout", False)
+        dropout_p: float = config.get("dropout_p", 0.3)
 
         # Look up the block class from the string name
         block: Type[BasicBlock]

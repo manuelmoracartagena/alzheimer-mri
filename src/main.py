@@ -1,3 +1,4 @@
+# src/main.py
 """
 Main Execution Pipeline.
 
@@ -9,16 +10,10 @@ Weights & Biases (WandB) logging, and orchestrates the training and testing phas
 import copy
 import torch
 import wandb
-import sys
 import os
 from collections import defaultdict
 from pathlib import Path
 
-# Adjust sys.path to ensure we can import modules if running from root
-current_dir = Path(__file__).resolve().parent
-sys.path.append(str(current_dir))
-
-# Import local modules
 from utils.config_loader import load_main_config
 from data.dataloader import get_dataloaders 
 from utils.metrics import print_final_metrics

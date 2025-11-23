@@ -1,5 +1,6 @@
+# src/models/vit.py
 """
-This Python script defines a Vision Transformer model for classification.
+This Python script defines a Vision Transformer (ViT) model for classification.
 It is configured dynamically via a dictionary passed during initialization.
 """
 
@@ -91,19 +92,19 @@ class ViT(nn.Module):
         super().__init__()
         
         # --- Extract Config ---
-        image_size = config.get("image_size", 256)
-        patch_size = config.get("patch_size", 16)
-        channels = config.get("in_channels", 1)
-        dim = config.get("dim", 768)
-        depth = config.get("depth", 6)
-        heads = config.get("heads", 8)
-        mlp_dim = config.get("mlp_dim", 3072)
-        dim_head = config.get("dim_head", 64)
-        dropout = config.get("dropout", 0.1)
-        emb_dropout = config.get("emb_dropout", 0.1)
-        pool = config.get("pool", "cls")
+        image_size: Union[int, List[int]] = config.get("image_size", 256)
+        patch_size: Union[int, List[int]] = config.get("patch_size", 16)
+        channels: int = config.get("in_channels", 1)
+        dim: int = config.get("dim", 768)
+        depth: int = config.get("depth", 6)
+        heads: int = config.get("heads", 8)
+        mlp_dim: int = config.get("mlp_dim", 3072)
+        dim_head: int = config.get("dim_head", 64)
+        dropout: float = config.get("dropout", 0.1)
+        emb_dropout: float = config.get("emb_dropout", 0.1)
+        pool: str = config.get("pool", "cls")
         
-        num_classes = linear_out_features
+        num_classes: int = linear_out_features
         
         image_height, image_width = pair(image_size)
         patch_height, patch_width = pair(patch_size)

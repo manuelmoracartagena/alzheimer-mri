@@ -10,9 +10,9 @@ import torch.nn as nn
 import torch.optim as optim
 import wandb
 import copy
-import os
 from typing import Tuple, Dict, Any
 from tqdm import tqdm
+
 from utils.metrics import calculate_metrics
 
 def train_epoch(model: nn.Module, 

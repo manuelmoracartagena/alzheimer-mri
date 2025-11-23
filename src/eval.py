@@ -14,7 +14,6 @@ import os
 from tqdm import tqdm
 from typing import Dict, Any, Tuple
 
-from configs.config import TRAIN_CONFIG as config
 from utils.metrics import calculate_metrics, plot_confusion_matrix
 
 def test_model(model: nn.Module, 
@@ -22,7 +21,8 @@ def test_model(model: nn.Module,
                device: torch.device, 
                model_name: str, 
                strategy: str, 
-               fold_display_num: int) -> Tuple[Dict[str, float], str]:
+               fold_display_num: int,
+               config: Dict[str, Any]) -> Tuple[Dict[str, float], str]:
     """
     Executes the testing loop and calculates final metrics.
 
@@ -33,6 +33,7 @@ def test_model(model: nn.Module,
         model_name (str): Name of the model.
         strategy (str): Data strategy used (CV or split).
         fold_display_num (int): Current fold number for display.
+        config (Dict): Configuration dictionary (needed for paths in plot_confusion_matrix).
 
     Returns:
         Tuple[Dict, str]: A dictionary of metrics and the path to the confusion matrix image.
@@ -57,7 +58,11 @@ def test_model(model: nn.Module,
             all_labels.extend(labels.cpu().numpy())
 
     pbar.close()
+    
+    # Calculate metrics
     metrics = calculate_metrics(all_labels, all_preds)
+    
+    # Generate confusion matrix (requires config to know where to save 'tmp' files)
     cm_image_path = plot_confusion_matrix(all_labels, all_preds, config)
     
     return metrics, cm_image_path
@@ -71,17 +76,6 @@ def run_evaluation_fold(model_instance: nn.Module,
                         model_name: str) -> Dict[str, float]:
     """
     Loads the best saved model from disk and evaluates it on the test set.
-    
-    Args:
-        model_instance (nn.Module): The initialized model architecture.
-        test_loader (DataLoader): Test data loader.
-        model_path (str): Path to the saved model weights.
-        config (Dict): Configuration dictionary.
-        fold (int): Current fold index.
-        model_name (str): Model name.
-
-    Returns:
-        Dict[str, float]: Dictionary of evaluation metrics.
     """
     device = config["device"]
     model = model_instance.to(device)
@@ -94,6 +88,7 @@ def run_evaluation_fold(model_instance: nn.Module,
     
     try:
         # Load weights
+        # 'weights_only=True' is a security best practice in newer PyTorch versions
         model.load_state_dict(torch.load(model_path, map_location=device, weights_only=True))
     except FileNotFoundError:
         print(f"ERROR: Model file not found at {model_path}. Skipping test.")
@@ -102,9 +97,11 @@ def run_evaluation_fold(model_instance: nn.Module,
         print(f"ERROR: Could not load model from {model_path}: {e}. Skipping test.")
         return {"error": str(e)}
 
+    # Run the test loop, passing the config dictionary
     fold_metrics, cm_image_path = test_model(
         model, test_loader, device,
-        model_name, strategy, fold_display_num
+        model_name, strategy, fold_display_num,
+        config
     )
     
     f1_macro = fold_metrics.get("f1-score_macro", 0)
@@ -117,13 +114,14 @@ def run_evaluation_fold(model_instance: nn.Module,
     if os.path.exists(cm_image_path):
         os.remove(cm_image_path)
     else:
+        # Just a safeguard in case the path logic fails subtly
         if "temp_cm.png" not in cm_image_path:
             print(f"Warning: Could not find {cm_image_path} to delete.")
 
     print(f"{run_label} - Testing complete.")
 
-    # Handle weight preservation logic
-    if not config["save_weights"]:
+    # Handle weight preservation logic based on YAML config
+    if not config.get("save_weights", False):
         print(f"Deleting model weights (save_weights is False)")
         if os.path.exists(model_path):
             os.remove(model_path)

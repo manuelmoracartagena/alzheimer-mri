@@ -1,4 +1,4 @@
-# src/dataloader.py
+# src/data/dataloader.py
 """
 Data Loading and Processing Module.
 
@@ -9,15 +9,15 @@ augmentations and transformations.
 """
 
 import os
+from pathlib import Path
+from typing import List, Tuple, Dict, Any, Union
+from tqdm import tqdm
+from PIL import Image
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler
 import torchvision.transforms as transforms
-from PIL import Image
-from pathlib import Path
-from typing import List, Tuple, Dict, Any, Union
 from sklearn.model_selection import StratifiedKFold, train_test_split
-from tqdm import tqdm
 
 
 class MyDataset(Dataset):

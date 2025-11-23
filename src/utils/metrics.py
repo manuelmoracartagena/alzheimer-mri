@@ -9,10 +9,8 @@ and handles the generation and saving of Confusion Matrices.
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import os
 import wandb
 from typing import Dict, List, Any
-from pathlib import Path
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix, accuracy_score
 
 def calculate_metrics(y_true: List[int], y_pred: List[int]) -> Dict[str, float]:

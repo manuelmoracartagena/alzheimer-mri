@@ -1,3 +1,4 @@
+# src/utils/model_factory.py
 """
 Model Factory Module.
 
@@ -8,9 +9,7 @@ with specific parameters loaded from YAML files.
 """
 
 from typing import List, Any
-from pathlib import Path
 
-# Import Models
 from models.cnn_1 import Cnn_1
 from models.cnn_2 import Cnn_2
 from models.cnn_3 import Cnn_3

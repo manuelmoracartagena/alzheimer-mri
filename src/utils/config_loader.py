@@ -1,6 +1,12 @@
 # src/utils/config_loader.py
+"""
+Configuration Loader Module.
+This module handles loading and merging of configuration files (YAML) for the project.
+It provides functions to load the main configuration as well as specific model configurations,
+resolving paths and merging dataset-specific settings.
+"""
+
 import yaml
-import os
 from pathlib import Path
 from typing import Dict, Any
 

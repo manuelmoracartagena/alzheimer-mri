@@ -1,35 +1,43 @@
+# src/models/cnn_3.py
 """
-This Python script defines a flexible Convolutional Neural Network for classification.
+This Python script defines a flexible Convolutional Neural Network (CNN_3) for classification.
 It is configured dynamically via a dictionary passed during initialization.
 """
 
 import torch
 from torch import nn
 from torchvision.ops import DropBlock2d
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List, Tuple, Union
 
 class Cnn_3(nn.Module):
     """
-    Convolutional Neural Network with three initial convolutions concatenated 
-    for classification.
+    Convolutional Neural Network with three initial convolutions concatenated.
+    Supports optional Batch Normalization, Dropout, and DropBlock regularization.
     """
 
     def __init__(self, config: Dict[str, Any], linear_out_features: int) -> None:
         super().__init__()
 
         # --- Extract configuration ---
-        use_batchnorm = config.get("use_batchnorm", False)
-        use_dropout = config.get("use_dropout", False)
-        use_dropblock = config.get("use_dropblock", False)
-        p = config.get("p", 0.5)
-        block_size = config.get("block_size", 5)
-        bn_momentum = config.get("bn_momentum", 0.01)
-        stride = config.get("stride", 1)
-        linear_in_features = config["linear_in_features"]
+        use_batchnorm: bool = config.get("use_batchnorm", False)
+        use_dropout: bool = config.get("use_dropout", False)
+        use_dropblock: bool = config.get("use_dropblock", False)
+        p: float = config.get("p", 0.5)
+        block_size: int = config.get("block_size", 5)
+        bn_momentum: float = config.get("bn_momentum", 0.01)
+        stride: int = config.get("stride", 1)
+        
+        channels: List[int] = config["channels"]
+        kernel_sizes: List[int] = config["kernel_sizes"]
+        padding: List[Union[int, Tuple[int, int]]] = config["padding"]
+        linear_in_features: int = config["linear_in_features"]
 
+        # --- Class Attributes ---
         self.use_batchnorm = use_batchnorm
-        self.use_dropout = use_dropout
-        self.use_dropblock = use_dropblock
+        self.convs: nn.ModuleList
+        self.bns: Optional[nn.ModuleList] = None
+        self.drop_layers: Optional[nn.ModuleList] = None
+        self.linear_at_output: nn.Linear
 
         if use_dropout and use_dropblock:
             raise ValueError("Cannot use both Dropout and DropBlock simultaneously.")
@@ -58,15 +66,12 @@ class Cnn_3(nn.Module):
         )
 
         # Rest of the convolutional layers
-        channels = config["channels"] 
-        kernel_sizes = config["kernel_sizes"]
-        padding = config["padding"]
-
         self.convs = nn.ModuleList()
 
         for i in range(len(channels) - 1):
             pad = padding[i]
-            if isinstance(pad, list): pad = tuple(pad)
+            if isinstance(pad, list):
+                pad = tuple(pad)
             
             conv = nn.Conv2d(
                 in_channels=channels[i],
@@ -83,20 +88,19 @@ class Cnn_3(nn.Module):
                 nn.BatchNorm2d(channels[i + 1], momentum=bn_momentum)
                 for i in range(len(channels) - 1)
             ])
-        else:
-            self.bns = None
 
         # Dropout / DropBlock
         if use_dropout:
-            self.drop_layers = nn.ModuleList([nn.Dropout(p) for _ in range(len(self.convs))])
+            self.drop_layers = nn.ModuleList([
+                nn.Dropout(p=p) for _ in range(len(self.convs))
+            ])
         elif use_dropblock:
             self.drop_layers = nn.ModuleList([
                 DropBlock2d(p=p, block_size=block_size) if i < 6 else None
                 for i in range(len(self.convs))
             ])
-        else:
-            self.drop_layers = None
 
+        # Fully connected output
         self.linear_at_output = nn.Linear(
             in_features=linear_in_features,
             out_features=linear_out_features

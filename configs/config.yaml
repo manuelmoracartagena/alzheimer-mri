@@ -93,7 +93,7 @@ common_hyperparameters:
 
   # --- Model Selection ---
   # Models to train (Options: "Cnn_1", "Cnn_2", "Cnn_3", "ResNet", "ViT".)
-  models: ["Cnn_1"]
+  models: ["ResNet"]
 
   # --- Environment & Runtime ---
   # Note: 'device' logic (cuda vs cpu) should be handled in Python code
