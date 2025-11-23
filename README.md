@@ -37,13 +37,15 @@ This project explores the performance trade-offs between **Convolutional Neural 
 
 ```plaintext
 alzheimer-mri/
+
+│── ⚙️ configs/           # Configuration for training and models
 │── 🗂️ data/              # Dataset directory (Images or .npy files)
 │── 📈 logs/              # Logs directory for wandb runs
 │── 🛠️ scripts/           # Scripts for environment setup and dataset preprocessing
 │── 📂 src/               # Core implementation
-│   ├── ⚙️ configs/       # Configuration for training and models
+    ├── 🗂️ data/          # Dataloader
 │   ├── 🧠 models/        # Architecture definitions (ViT, ResNet, CNNs)
-│   ├── 🧩 utils/         # Metrics, dataloaders, model factory
+│   ├── 🧩 utils/         # Config loader, metrics, model factory
 │   ├── 📊 eval.py        # Evaluation script
 │   ├── 🐍 main.py        # Main entry point for the pipeline
 │   └── 🧪 train.py       # Training script
@@ -145,7 +147,7 @@ Before training, the raw dataset must be preprocessed using the scripts in `src/
 1. Place the original images in `data/kaggle/augmented/` organized by class folders
 2. Run the preprocessing script:
 ```bash
-python src/tools/prepare_data_kaggle.py
+python scripts/prepare_data_kaggle.py
 ```
 This will generate standardized images, all of the same size, in `data/kaggle/resized`.
 
@@ -154,7 +156,7 @@ This will generate standardized images, all of the same size, in `data/kaggle/re
 2. Ensure CSV files with patient IDs are present in `data/adni/` (e.g., `ADNI1_Complete_1Yr_3T_5_05_2025.csv`)
 3. Run the preprocessing script:
 ```bash
-python src/tools/prepare_data_adni.py
+python scripts/prepare_data_adni.py
 ```
 This will convert Nifti files (`.nii`) to preprocessed slices and create train/val/test splits.
 
@@ -165,13 +167,13 @@ python src/main.py
 
 ### ⚙️ Configuration
 
-**Training Hyperparameters** can be customized in `configs/config.py`:
+**Training configuration** and **hyperparameters** can be customized in `configs/config.yaml`:
 - Learning rate, batch size, epochs, optimizer, loss function, dataset, model selection, cross-validation.
 
 **Model Architecture & Regularization** can be adjusted in individual model config files:
-- `cnn_1_config.py`, `cnn_2_config.py`, `cnn_3_config.py`
-- `resnet_config.py`
-- `vit_config.py`
+- `cnn_1_config.yaml`, `cnn_2_config.yaml`, `cnn_3_config.yaml`
+- `resnet_config.yaml`
+- `vit_config.yaml`
 
 **Available Regularization Techniques:**
 - Dropout, DropBlock, Batch Normalization, Early Stopping, Weight Decay, etc.
@@ -189,7 +191,7 @@ All training runs are logged to **Weights & Biases (WandB)** for:
 ---
 
 ## 🤝 Acknowledgements
-This project was developed as part of the Master's in Artificial Intelligence and Big Data Analytics. Special thanks to the ADNI for making their dataset available for scientific progress.
+This project was developed as part of the Master's in Artificial Intelligence and Big Data Analytics. Special thanks to the ADNI for making their dataset available for scientific purposes.
 
 ## 📝 License
 
