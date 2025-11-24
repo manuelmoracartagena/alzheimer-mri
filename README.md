@@ -43,7 +43,7 @@ alzheimer-mri/
 │── 📈 logs/              # Logs directory for wandb runs
 │── 🛠️ scripts/           # Scripts for environment setup and dataset preprocessing
 │── 📂 src/               # Core implementation
-    ├── 🗂️ data/          # Dataloader
+    ├── 📥 data/          # Dataloader for both datasets
 │   ├── 🧠 models/        # Architecture definitions (ViT, ResNet, CNNs)
 │   ├── 🧩 utils/         # Config loader, metrics, model factory
 │   ├── 📊 eval.py        # Evaluation script
