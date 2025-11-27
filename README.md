@@ -100,10 +100,10 @@ This project implements and compares **5 distinct deep learning architectures** 
 
 | Model | Description |
 | :--- | :--- |
-| **CNN_1** | Base classic CNN architecture. |
-| **CNN_2** | Classic CNN architecture with 1 additional convolutional layer added at the initial stage. |
-| **CNN_3** | Classic CNN architecture with 2 additional convolutional layers added at the initial stage. |
-| **Residual Network (ResNet)** | ResNet-18 backbone with custom classification head. |
+| ** Convolutional Neural Network 1 (CNN_1)** | Base classic CNN architecture. |
+| **Convolutional Neural Network 2 (CNN_2)** | Classic CNN architecture with 1 additional convolutional layer added at the initial stage. |
+| **Convolutional Neural Network 3 (CNN_3)** | Classic CNN architecture with 2 additional convolutional layers added at the initial stage. |
+| **Residual Network (ResNet)** | ResNet-18 backbone with custom classification head.Convolutional Neural Network 1 |
 | **Vision Transformer (ViT)** | State-of-the-art ViT architecture for image classification. |
 
 All models are configured to handle grayscale MRI images with adaptive input preprocessing. The system is fully automated and optimized for multiclass classification across dementia stages, dynamically adjusting to 3 or 4 classes depending on the dataset.
