@@ -4,7 +4,7 @@
 
 <!-- 📄 **Report**: [Insert Link to Paper/Report]   -->
 💻 **Code**: This repository  
-✍️ **Autor**: Manuel Mora Cartagena  
+✍️ **Author**: Manuel Mora Cartagena  
 🏆 **Goal**: Robust multiclass classification of MRI Alzheimer's data
 
 <!-- ✨ **Focus**: CNNs, ResNets & Vision Transformers   -->
