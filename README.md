@@ -44,7 +44,7 @@ alzheimer-mri/
 │── 🛠️ scripts/           # Scripts for environment setup and dataset preprocessing
 │── 📂 src/               # Core implementation
     ├── 📥 data/          # Dataloader for both datasets
-│   ├── 🧠 models/        # Architecture definitions (CNNs, ResNet, ViT, HybridRViT, ViT)
+│   ├── 🧠 models/        # Architecture definitions (CNNs, ResNet, ViT and HybridRViT)
 │   ├── 🧩 utils/         # Config loader, metrics, model factory
 │   ├── 📊 eval.py        # Evaluation script
 │   ├── 🐍 main.py        # Main entry point for the pipeline
