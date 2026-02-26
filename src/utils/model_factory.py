@@ -44,7 +44,7 @@ MODEL_REGISTRY = {
     },
     "HybridRViT": {
         "class": HybridRViT,
-        "config_file": "rvit_hybrid_config.yaml"
+        "config_file": "hybrid_rvit_config.yaml"
     }
 }
 

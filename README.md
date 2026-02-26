@@ -175,7 +175,7 @@ python3 src/main.py
 - `cnn_1_config.yaml`, `cnn_2_config.yaml`, `cnn_3_config.yaml`
 - `resnet_config.yaml`
 - `vit_config.yaml`
-- `rvit_hybrid_config.yaml`
+- `hybrid_rvit_config.yaml`
 
 **Available Regularization Techniques:**
 - Dropout, DropBlock, Batch Normalization, Early Stopping, Weight Decay, etc.
