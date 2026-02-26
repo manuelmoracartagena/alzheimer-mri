@@ -7,7 +7,7 @@
 ✍️ **Author**: Manuel Mora Cartagena  
 🏆 **Goal**: Robust multiclass classification of MRI Alzheimer's data
 
-<!-- ✨ **Focus**: CNNs, ResNets & Vision Transformers   -->
+<!-- ✨ **Focus**: CNNs, ResNets, Vision Transformers and Hybrid Resnet & Vision Transformers   -->
 
 </div>
 
@@ -19,13 +19,13 @@
 
 Early diagnosis of Alzheimer's Disease (AD) is crucial for effective patient care. This repository hosts a **comprehensive Deep Learning pipeline** designed to classify MRI slices into distinct stages of dementia.
 
-This project explores the performance trade-offs between **Convolutional Neural Networks (CNNs)**, **Residual Neural Networks (ResNet)** and **Vision Transformers (ViT)** applied to medical imaging. This repository provides a fully reproducible training pipeline equipped with automated reporting and Weights & Biases integration.
+This project explores the performance trade-offs between **Convolutional Neural Networks (CNNs)**, **Residual Neural Networks (ResNet)**, **Vision Transformers (ViT)** and **Hybrid architectures (HybridRViT)** applied to medical imaging. This repository provides a fully reproducible training pipeline equipped with automated reporting and Weights & Biases integration.
 
 </div>
 
 
 ### 🔑 Key Features:
-- **Multi-Architecture Support**: Seamless switching between custom CNNs, ResNet and ViT.
+- **Multi-Architecture Support**: Seamless switching between custom CNNs, ResNet, ViT and HybridRViT.
 - **Robust Evaluation**: Supports Stratified K-Fold Cross-Validation and Simple Splits (Train/Val/Test).
 - **Advanced Regularization**: Implementations of DropBlock, Dropout, Batch Normalization and early stopping among others.
 - **Dual Data Support**: Handles both standard image formats (`.jpg`, `.png`) and pre-processed Numpy arrays (`.npy`) for medical imaging depth.
@@ -44,7 +44,7 @@ alzheimer-mri/
 │── 🛠️ scripts/           # Scripts for environment setup and dataset preprocessing
 │── 📂 src/               # Core implementation
     ├── 📥 data/          # Dataloader for both datasets
-│   ├── 🧠 models/        # Architecture definitions (ViT, ResNet, CNNs)
+│   ├── 🧠 models/        # Architecture definitions (HybridRViT, ViT, ResNet, CNNs)
 │   ├── 🧩 utils/         # Config loader, metrics, model factory
 │   ├── 📊 eval.py        # Evaluation script
 │   ├── 🐍 main.py        # Main entry point for the pipeline
@@ -103,8 +103,9 @@ This project implements and compares **5 distinct deep learning architectures** 
 | **Convolutional Neural Network 1 (CNN_1)** | Base classic CNN architecture. |
 | **Convolutional Neural Network 2 (CNN_2)** | Classic CNN architecture with 1 additional convolutional layer added at the initial stage. |
 | **Convolutional Neural Network 3 (CNN_3)** | Classic CNN architecture with 2 additional convolutional layers added at the initial stage. |
-| **Residual Network (ResNet)** | ResNet-18 backbone with custom classification head.Convolutional Neural Network 1 |
+| **Residual Network (ResNet)** | ResNet backbone with custom classification head. |
 | **Vision Transformer (ViT)** | State-of-the-art ViT architecture for image classification. |
+| **Hybrid architectures (HybridRViT)** | State-of-the-art Hybrid ResNet & ViT architecture for image classification. |
 
 All models are configured to handle grayscale MRI images with adaptive input preprocessing. The system is fully automated and optimized for multiclass classification across dementia stages, dynamically adjusting to 3 or 4 classes depending on the dataset.
 
@@ -147,7 +148,7 @@ Before training, the raw dataset must be preprocessed using the scripts in `src/
 1. Place the original images in `data/kaggle/augmented/` organized by class folders
 2. Run the preprocessing script:
 ```bash
-python scripts/prepare_data_kaggle.py
+python3 scripts/prepare_data_kaggle.py
 ```
 This will generate standardized images, all of the same size, in `data/kaggle/resized`.
 
@@ -156,13 +157,13 @@ This will generate standardized images, all of the same size, in `data/kaggle/re
 2. Ensure CSV files with patient IDs are present in `data/adni/` (e.g., `ADNI1_Complete_1Yr_3T_5_05_2025.csv`)
 3. Run the preprocessing script:
 ```bash
-python scripts/prepare_data_adni.py
+python3 scripts/prepare_data_adni.py
 ```
 This will convert Nifti files (`.nii`) to preprocessed slices and create train/val/test splits.
 
 ### 🧪 Basic Training
 ```bash
-python src/main.py
+python3 src/main.py
 ```
 
 ### ⚙️ Configuration
@@ -174,6 +175,7 @@ python src/main.py
 - `cnn_1_config.yaml`, `cnn_2_config.yaml`, `cnn_3_config.yaml`
 - `resnet_config.yaml`
 - `vit_config.yaml`
+- `rvit_hybrid_config.yaml`
 
 **Available Regularization Techniques:**
 - Dropout, DropBlock, Batch Normalization, Early Stopping, Weight Decay, etc.

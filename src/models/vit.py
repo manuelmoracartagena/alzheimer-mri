@@ -85,10 +85,25 @@ class Transformer(nn.Module):
 
 class ViT(nn.Module):
     """
-    The complete Vision Transformer (ViT) architecture.
-    Configured via 'config' dictionary.
+    Vision Transformer (ViT) for image classification.
+    
+    Implements the standard ViT architecture with patch embedding, positional encoding,
+    multi-head self-attention transformer blocks, and classification head. Highly 
+    configurable for different patch sizes, embedding dimensions, and depths.
     """
     def __init__(self, config: Dict[str, Any], linear_out_features: int) -> None:
+        """
+        Initialize the Vision Transformer model.
+        
+        Args:
+            config: Configuration dictionary containing ViT parameters
+                   (image_size, patch_size, dim, depth, heads, mlp_dim, etc.).
+            linear_out_features: Number of output classes for classification.
+        
+        Raises:
+            AssertionError: If image dimensions are not divisible by patch size,
+                          or if pool type is not 'cls' or 'mean'.
+        """
         super().__init__()
         
         # --- Extract Config ---
@@ -135,22 +150,31 @@ class ViT(nn.Module):
         self.mlp_head = nn.Linear(dim, num_classes)
 
     def forward(self, img: torch.Tensor) -> torch.Tensor:
-        # 1. Patch Embedding
+        """
+        Forward pass through the Vision Transformer model.
+        
+        Args:
+            img: Input tensor of shape [Batch, Channels, Height, Width].
+        
+        Returns:
+            Classification logits of shape [Batch, NumClasses].
+        """
+        # 1. Patch Embedding and linear projection
         x = self.to_patch_embedding(img)
         b, n, _ = x.shape
 
-        # 2. Append CLS token and add Positional Embeddings
+        # 2. Add CLS token and positional embeddings
         cls_tokens = repeat(self.cls_token, '1 1 d -> b 1 d', b = b)
         x = torch.cat((cls_tokens, x), dim=1)
         x += self.pos_embedding[:, :(n + 1)]
         x = self.dropout(x)
 
-        # 3. Transformer Encoder
+        # 3. Transformer encoder blocks with multi-head self-attention
         x = self.transformer(x)
 
-        # 4. Pooling
+        # 4. Pooling strategy (CLS token or mean pooling)
         x = x.mean(dim = 1) if self.pool == 'mean' else x[:, 0]
 
-        # 5. Classification Head
+        # 5. Classification head
         x = self.to_latent(x)
         return self.mlp_head(x)

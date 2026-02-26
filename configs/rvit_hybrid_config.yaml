@@ -1,0 +1,52 @@
+# Configuration file for Hybrid RViT Model (ResNet + Vision Transformer).
+#
+# This file defines the hyperparameters for both the ResNet backbone 
+# and the Vision Transformer encoder components.
+
+model_config:
+  # -------------------------------------------------------------------------
+  # ResNet Backbone Configuration
+  # -------------------------------------------------------------------------
+  resnet_config:
+    # Regularization options
+    use_dropout: true            # Enable Dropout within each BasicBlock
+    dropout_p: 0.3               # Dropout probability for BasicBlock
+    
+    # ResNet architecture (ResNet18 configuration)
+    block_type: "BasicBlock"     # Block type to use ("BasicBlock")
+    layers: [2, 2, 2, 2]         # ResNet18: Number of blocks in each of the four main layers
+    planes: [64, 128, 256, 512]  # Number of channels (planes) for each layer
+    in_channels: 1               # Input channels (1 = grayscale)
+    initial_planes: 64           # Channels after first convolutional layer
+
+  # -------------------------------------------------------------------------
+  # Vision Transformer Configuration
+  # -------------------------------------------------------------------------
+  vit_config:
+    # ViT Patch Embedding
+    image_size: 8                # Spatial size of feature maps from ResNet (8x8)
+    patch_size: 1                # Patch size (1 = treat each spatial position as a patch)
+    
+    # ViT Architecture
+    dim: 512                     # Embedding dimension
+    depth: 6                     # Number of Transformer encoder layers
+    heads: 8                     # Number of attention heads
+    mlp_dim: 1024                # Hidden dimension in MLP feed-forward blocks
+    dim_head: 64                 # Dimension per attention head
+    
+    # ViT Regularization
+    dropout: 0.1                 # Dropout probability in Transformer
+    emb_dropout: 0.1             # Dropout probability for embeddings
+    
+    # ViT Pooling Strategy
+    pool: "cls"                  # Pooling strategy: "cls" (CLS token) or "mean" (mean pooling)
+
+  # -------------------------------------------------------------------------
+  # Hybrid Model Configuration
+  # -------------------------------------------------------------------------
+  resnet_layer_out: 4           # Which ResNet layer to output from (1-4)
+                                # 1 = after layer1 (64 channels)
+                                # 2 = after layer2 (128 channels)
+                                # 3 = after layer3 (256 channels)
+                                # 4 = after layer4 (512 channels)
+

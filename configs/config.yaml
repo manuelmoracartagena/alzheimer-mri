@@ -92,8 +92,8 @@ common_hyperparameters:
   weight_decay: 0.0001
 
   # --- Model Selection ---
-  # Models to train (Options: "Cnn_1", "Cnn_2", "Cnn_3", "ResNet", "ViT".)
-  models: ["ResNet"]
+  # Models to train (Options: "Cnn_1", "Cnn_2", "Cnn_3", "ResNet", "ViT", "HybridRViT")
+  models: ["HybridRViT"]
 
   # --- Environment & Runtime ---
   # Note: 'device' logic (cuda vs cpu) should be handled in Python code

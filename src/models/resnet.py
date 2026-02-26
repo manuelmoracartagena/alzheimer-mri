@@ -59,10 +59,25 @@ class BasicBlock(nn.Module):
 
 class ResNet(nn.Module):
     """
-    ResNet implementation. Configured via 'config' dictionary.
+    ResNet implementation for classification.
+    
+    Configurable residual neural network with customizable depth, block types, 
+    and regularization options. Supports BasicBlock architecture with optional 
+    dropout and batch normalization.
     """
 
     def __init__(self, config: Dict[str, Any], linear_out_features: int) -> None:
+        """
+        Initialize the ResNet model.
+        
+        Args:
+            config: Configuration dictionary containing ResNet parameters
+                   (block_type, layers, planes, in_channels, etc.).
+            linear_out_features: Number of output classes for classification.
+        
+        Raises:
+            ValueError: If block_type is not supported.
+        """
         super().__init__()
 
         # --- Extract Config ---
@@ -128,16 +143,28 @@ class ResNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass through the ResNet model.
+        
+        Args:
+            x: Input tensor of shape [Batch, Channels, Height, Width].
+        
+        Returns:
+            Classification logits of shape [Batch, NumClasses].
+        """
+        # 1. Initial convolution, batch norm, and pooling
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
         x = self.maxpool(x)
 
+        # 2. Residual blocks
         x = self.layer1(x)
         x = self.layer2(x)
         x = self.layer3(x)
         x = self.layer4(x)
 
+        # 3. Global average pooling and classification head
         x = self.avgpool(x)
         x = torch.flatten(x, 1)
         x = self.fc(x)

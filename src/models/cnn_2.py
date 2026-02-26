@@ -1,7 +1,11 @@
 # src/models/cnn_2.py
 """
-This Python script defines a flexible Convolutional Neural Network (CNN_2) for classification.
-It is configured dynamically via a dictionary passed during initialization.
+Convolutional Neural Network (CNN_2) for image classification.
+
+A flexible CNN architecture with two initial parallel convolutions that are
+concatenated. Supports configurable layers, filter sizes, and kernel sizes.
+Includes optional Batch Normalization, Dropout, and DropBlock regularization.
+Configured dynamically via dictionary passed during initialization.
 """
 
 import torch
@@ -11,14 +15,28 @@ from typing import Optional, Dict, Any, List, Tuple, Union
 
 class Cnn_2(nn.Module):
     """
-    Convolutional Neural Network with two initial convolutions concatenated.
-    Supports optional Batch Normalization, Dropout, and DropBlock regularization.
+    Convolutional Neural Network (CNN_2) for classification.
+    
+    A flexible CNN architecture with two initial parallel convolutions that are 
+    concatenated. Supports configurable layers, filter sizes, and kernel sizes. 
+    Includes optional Batch Normalization, Dropout, and DropBlock regularization.
     """
 
     def __init__(self, config: Dict[str, Any], linear_out_features: int) -> None:
+        """
+        Initialize the CNN_2 model.
+        
+        Args:
+            config: Configuration dictionary containing CNN parameters
+                   (channels, kernel_sizes, padding, linear_in_features, etc.).
+            linear_out_features: Number of output classes for classification.
+        
+        Raises:
+            ValueError: If both Dropout and DropBlock are enabled simultaneously.
+        """
         super().__init__()
 
-        # --- Extract configuration ---
+        # --- Extract Configuration ---
         use_batchnorm: bool = config.get("use_batchnorm", False)
         use_dropout: bool = config.get("use_dropout", False)
         use_dropblock: bool = config.get("use_dropblock", False)
@@ -100,7 +118,16 @@ class Cnn_2(nn.Module):
         )
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
-        # Two initial convolutions concatenated
+        """
+        Forward pass through the CNN_2 model.
+        
+        Args:
+            inputs: Input tensor of shape [Batch, Channels, Height, Width].
+        
+        Returns:
+            Classification logits of shape [Batch, NumClasses].
+        """
+        # 1. Two initial parallel convolutions concatenated
         x_a = self.conv_01_a(inputs)
         x_b = self.conv_01_b(inputs)
         x = torch.cat((x_a, x_b), dim=1)
@@ -109,6 +136,7 @@ class Cnn_2(nn.Module):
 
         flat_dim = self.linear_at_output.in_features
 
+        # 2. Convolutional layers with optional regularization
         for i, conv in enumerate(self.convs):
             x = conv(x)
 
@@ -125,6 +153,8 @@ class Cnn_2(nn.Module):
             if i < len(self.convs) - 1:
                 x = nn.functional.max_pool2d(x, (2, 2))
 
+        # 3. Flatten and classification head
         x = x.view(-1, flat_dim)
         logits = self.linear_at_output(x)
+        
         return logits

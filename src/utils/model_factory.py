@@ -3,7 +3,7 @@
 Model Factory Module.
 
 This module acts as a centralized factory for instantiating neural network models.
-It manages a registry of available architectures (CNNs, ResNet, ViT) and their
+It manages a registry of available architectures (CNNs, ResNet, ViT, HybridRViT) and their
 corresponding configurations, providing a unified interface to create model instances
 with specific parameters loaded from YAML files.
 """
@@ -15,6 +15,7 @@ from models.cnn_2 import Cnn_2
 from models.cnn_3 import Cnn_3
 from models.resnet import ResNet
 from models.vit import ViT
+from models.hybrid_rvit import HybridRViT
 
 # Import the config loader utility
 from utils.config_loader import load_model_config
@@ -40,8 +41,13 @@ MODEL_REGISTRY = {
     "ViT": {
         "class": ViT,
         "config_file": "vit_config.yaml"
+    },
+    "HybridRViT": {
+        "class": HybridRViT,
+        "config_file": "rvit_hybrid_config.yaml"
     }
 }
+
 
 def create_model(model_name: str, num_classes: int) -> Any:
     """

@@ -1,7 +1,11 @@
 # src/models/cnn_1.py
 """
-This Python script defines a flexible Convolutional Neural Network (CNN_1) for classification.
-It is configured dynamically via a dictionary passed during initialization.
+Convolutional Neural Network (CNN_1) for image classification.
+
+A flexible CNN architecture with configurable number of convolutional layers,
+filter sizes, and kernel sizes. Supports optional Batch Normalization, Dropout,
+and DropBlock regularization for improved generalization. Configured dynamically
+via dictionary passed during initialization.
 """
 
 import torch
@@ -11,14 +15,28 @@ from typing import Optional, Dict, Any, List, Tuple, Union
 
 class Cnn_1(nn.Module):
     """
-    Convolutional Neural Network for classification.
-    Supports optional Batch Normalization, Dropout, and DropBlock regularization.
+    Convolutional Neural Network (CNN_1) for classification.
+    
+    A flexible CNN architecture with configurable number of convolutional layers,
+    filter sizes, and kernel sizes. Supports optional Batch Normalization, Dropout,
+    and DropBlock regularization for improved generalization.
     """
 
     def __init__(self, config: Dict[str, Any], linear_out_features: int) -> None:
+        """
+        Initialize the CNN_1 model.
+        
+        Args:
+            config: Configuration dictionary containing CNN parameters
+                   (channels, kernel_sizes, padding, linear_in_features, etc.).
+            linear_out_features: Number of output classes for classification.
+        
+        Raises:
+            ValueError: If both Dropout and DropBlock are enabled simultaneously.
+        """
         super().__init__()
 
-        # --- Extract configuration ---
+        # --- Extract Configuration ---
         use_batchnorm: bool = config.get("use_batchnorm", False)
         use_dropout: bool = config.get("use_dropout", False)
         use_dropblock: bool = config.get("use_dropblock", False)
@@ -85,11 +103,19 @@ class Cnn_1(nn.Module):
         )
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
-        x = inputs
+        """
+        Forward pass through the CNN_1 model.
         
-        # Determine flattening size based on linear layer input
+        Args:
+            inputs: Input tensor of shape [Batch, Channels, Height, Width].
+        
+        Returns:
+            Classification logits of shape [Batch, NumClasses].
+        """
+        x = inputs
         flat_dim = self.linear_at_output.in_features
 
+        # 1. Convolutional layers with optional regularization
         for i, conv in enumerate(self.convs):
             x = conv(x)
 
@@ -107,9 +133,8 @@ class Cnn_1(nn.Module):
             if i < len(self.convs) - 1:
                 x = nn.functional.max_pool2d(x, (2, 2))
 
-        # Flatten
+        # 2. Flatten and classification head
         x = x.view(-1, flat_dim)
-
-        # Output
         logits = self.linear_at_output(x)
+        
         return logits
