@@ -76,7 +76,7 @@ datasets:
 # 3. ACTIVE DATASET SELECTION
 # -------------------------------------------------------------------------
 # Options: "kaggle" or "adni" (Must match keys in 'datasets' above)
-active_dataset: "adni"
+active_dataset: "kaggle"
 
 # -------------------------------------------------------------------------
 # 4. FINAL TRAINING CONFIGURATION DICTIONARY

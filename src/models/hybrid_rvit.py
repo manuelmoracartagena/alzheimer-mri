@@ -1,11 +1,11 @@
 # src/models/hybrid_rvit.py
 """
-This Python script defines a hybrid Vision Transformer model that combines ResNet backbone 
-with Vision Transformer encoder.
+Hybrid Residual Vision Transformer (RViT) for image classification.
 
-The architecture uses a CNN backbone to extract features from input images and passes them 
-to a Transformer encoder for global reasoning. Configured dynamically via dictionaries 
-passed during initialization.
+A hybrid architecture combining ResNet backbone for local feature extraction with
+Vision Transformer encoder for global reasoning. The ResNet extracts hierarchical
+features which are then processed through a ViT for attention-based classification.
+Configured dynamically via dictionaries passed during initialization.
 """
 
 import torch
@@ -21,9 +21,9 @@ class HybridRViT(nn.Module):
     """
     Hybrid Architecture: ResNet backbone + Vision Transformer encoder.
     
-    Combines a ResNet backbone for local feature extraction with a Vision Transformer 
-    for capturing global dependencies. Features from a specified ResNet layer are 
-    tokenized and processed through the ViT encoder.
+    Combines a ResNet backbone for local feature extraction with a Vision Transformer
+    for capturing global dependencies. Features from a specified ResNet layer are
+    directly processed through the ViT encoder for attention-based classification.
     """
 
     def __init__(self, config: Dict[str, Any], linear_out_features: int) -> None:
@@ -76,10 +76,11 @@ class HybridRViT(nn.Module):
         
         Args:
             resnet: The ResNet model to extract backbone from.
-            layer_out: Layer to output from (1-4).
+            layer_out: Layer to output from (1-4), where 1 is after layer1,
+                      2 is after layer2, etc.
         
         Returns:
-            Sequential module containing ResNet layers.
+            Sequential module containing ResNet layers up to the specified output.
         """
         layers = [
             resnet.conv1,
@@ -111,12 +112,5 @@ class HybridRViT(nn.Module):
         # 1. Extract features from ResNet backbone
         features = self.resnet_backbone(x)
         
-        # 2. Convert feature maps to image format for ViT
-        # [B, C, H, W] -> [B, H, W, C] -> [B, H*W, C] -> [B, C, H, W]
-        b, c, h, w = features.shape
-        tokens = rearrange(features, 'b c h w -> b (h w) c')
-        x = rearrange(tokens, 'b (h w) c -> b c h w', h=h, w=w)
-        
-        # 3. Pass through Vision Transformer (handles patch embedding, 
-        #    attention, pooling, and classification)
-        return self.vit(x)
+        # 2. Pass the raw feature maps to the Vision Transformer. 
+        return self.vit(features)
