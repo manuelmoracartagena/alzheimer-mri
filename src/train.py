@@ -15,6 +15,31 @@ from tqdm import tqdm
 
 from utils.metrics import calculate_metrics
 
+
+def apply_gradient_clipping(model: nn.Module, config: Dict[str, Any]) -> None:
+    """
+    Apply gradient clipping to model parameters based on configuration.
+    
+    Args:
+        model (nn.Module): The model to apply clipping to.
+        config (Dict[str, Any]): Configuration dictionary containing gradient_clipping settings.
+    """
+    grad_clip_config = config.get("gradient_clipping", {})
+    
+    if not grad_clip_config.get("enabled", False):
+        return  # No clipping if disabled
+    
+    method = grad_clip_config.get("method", "norm")
+    
+    if method == "norm":
+        max_norm = grad_clip_config.get("max_norm", 1.0)
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=max_norm)
+    elif method == "value":
+        max_value = grad_clip_config.get("max_value", 0.1)
+        torch.nn.utils.clip_grad_value_(model.parameters(), clip_value=max_value)
+    else:
+        print(f"WARNING: Unknown gradient clipping method '{method}'. Skipping clipping.")
+
 def train_epoch(model: nn.Module, 
                 loader: torch.utils.data.DataLoader, 
                 criterion: nn.Module, 
@@ -24,7 +49,8 @@ def train_epoch(model: nn.Module,
                 strategy: str, 
                 fold_display_num: int, 
                 epoch_num: int, 
-                total_epochs: int) -> float:
+                total_epochs: int,
+                config: Dict[str, Any]) -> float:
     """
     Executes a single training epoch.
     """
@@ -46,6 +72,10 @@ def train_epoch(model: nn.Module,
         logits = model(images)
         train_loss = criterion(logits, labels)
         train_loss.backward()
+        
+        # Apply gradient clipping if enabled
+        apply_gradient_clipping(model, config)
+        
         optimizer.step()
         
         running_train_loss += train_loss.item()
@@ -145,7 +175,7 @@ def run_training_fold(model_instance: nn.Module,
         
         avg_train_loss = train_epoch(
             model, train_loader, criterion, optimizer, device, 
-            model_name, strategy, fold_display_num, epoch_num, config['epochs']
+            model_name, strategy, fold_display_num, epoch_num, config['epochs'], config
         )
         
         avg_val_loss, epoch_metrics = evaluate_epoch(

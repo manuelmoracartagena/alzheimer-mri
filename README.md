@@ -71,11 +71,19 @@ alzheimer-mri/
 
 
 ### 🐳 Docker
-You can set up a container by running:
+You can set up a container by running any of the following:
+
+**Using make target:**
 ```bash
-bash scripts/start_container.sh [IMAGE_NAME] [GPU_DEVICE] [SHM_SIZE_GB]
+make container
 ```
-This script will build and run a GPU Docker container with custom settings, with all necessary libraries pre-installed.
+
+**Using the script directly:**
+```bash
+bash scripts/build_container.sh [IMAGE_NAME] [GPU_DEVICE] [SHM_SIZE_GB]
+```
+
+This will build and run a GPU Docker container with custom settings, with all necessary libraries pre-installed.
 
 #### 📄 Arguments
 
@@ -85,12 +93,21 @@ This script will build and run a GPU Docker container with custom settings, with
 | `GPU_DEVICE` | GPU ID to assign to the container | `0` | No |
 | `SHM_SIZE_GB` | Shared memory size in GB | `8` | No |
 
-### 🐍 Virtual Environment
-Alternatively, you can create a Python virtual environment (venv) and install the necessary dependencies by running:
 
+### 🐍 Virtual Environment
+You can create a Python virtual environment (venv) and install the necessary dependencies using any of the following:
+
+**Using make target:**
+```bash
+make venv
+```
+
+**Using the script directly:**
 ```bash
 bash scripts/build_venv.sh
 ```
+
+This will create a Python virtual environment with PyTorch CUDA 12.4 and all project dependencies installed.
 
 ---
 

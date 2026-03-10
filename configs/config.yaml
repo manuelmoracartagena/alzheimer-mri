@@ -91,6 +91,13 @@ common_hyperparameters:
   optimizer: "AdamW"
   weight_decay: 0.0001
 
+  # --- Gradient Clipping ---
+  gradient_clipping:
+    enabled: true              # Enable gradient clipping during training?
+    method: "norm"              # Clipping method: "norm" (clip_grad_norm_) or "value" (clip_grad_value_)
+    max_norm: 1.0               # Maximum gradient norm (used if method: "norm")
+    max_value: 0.1              # Maximum gradient value (used if method: "value")
+
   # --- Model Selection ---
   # Models to train (Options: "Cnn_1", "Cnn_2", "Cnn_3", "ResNet", "ViT", "HybridRViT")
   models: ["HybridRViT"]

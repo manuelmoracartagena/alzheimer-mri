@@ -16,3 +16,15 @@ clean-logs: ## Clean logs
 sync: ## Merge changes from main branch to your current branch
 	git pull
 	git pull origin main
+
+venv: ## Create Python virtual environment with CUDA 12.4 and dependencies
+	bash scripts/build_venv.sh
+
+container: ## Build and run Docker container with GPU support
+	bash scripts/build_container.sh
+
+clean-venv: ## Remove Python virtual environment
+	rm -rf venv
+
+clean-container: ## Remove Docker container
+	docker rm -f alzheimer-mri-container 2>/dev/null || true
