@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🧠 Alzheimer's stage diagnosis using Deep Learning
+# 🧠 Deep Learning for Alzheimer’s Diagnosis via Brain Neuroimaging
 
 <!-- 📄 **Report**: [Insert Link to Paper/Report]   -->
 💻 **Code**: This repository  
