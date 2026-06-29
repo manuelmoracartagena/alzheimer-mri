@@ -5,7 +5,7 @@
 <!-- 📄 **Report**: [Insert Link to Paper/Report]   -->
 💻 **Code**: This repository  
 ✍️ **Author**: Manuel Mora Cartagena  
-🏆 **Goal**: Robust multiclass classification of Alzheimer's Disease Magnetic Resonance Imaging slices
+🏆 **Goal**: Robust multiclass classification of Alzheimer's Disease brain neuroimaging data
 
 <!-- ✨ **Focus**: CNNs, ResNets, Vision Transformers and Hybrid Resnet & Vision Transformers   -->
 
