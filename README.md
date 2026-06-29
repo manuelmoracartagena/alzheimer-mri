@@ -5,7 +5,7 @@
 <!-- 📄 **Report**: [Insert Link to Paper/Report]   -->
 💻 **Code**: This repository  
 ✍️ **Author**: Manuel Mora Cartagena  
-🏆 **Goal**: Robust multiclass classification of Alzheimer's Disease Magnetic Resonance Imaging (MRI) slices
+🏆 **Goal**: Robust multiclass classification of Alzheimer's Disease Magnetic Resonance Imaging slices
 
 <!-- ✨ **Focus**: CNNs, ResNets, Vision Transformers and Hybrid Resnet & Vision Transformers   -->
 
@@ -17,7 +17,7 @@
 
 <div align="justify">
 
-Early diagnosis of Alzheimer's Disease (AD) is crucial for effective patient care. This repository hosts a **comprehensive Deep Learning pipeline** designed to classify MRI slices into distinct stages of dementia.
+Early diagnosis of Alzheimer's Disease (AD) is crucial for effective patient care. This repository hosts a **comprehensive Deep Learning pipeline** designed to classify Magnetic Resonance Imaging (MRI) slices into distinct stages of dementia.
 
 This project explores the performance trade-offs between **Convolutional Neural Networks (CNNs)**, **Residual Neural Networks (ResNet)**, **Vision Transformers (ViT)** and **Hybrid architectures (HybridRViT)** applied to medical imaging. This repository provides a fully reproducible training pipeline equipped with automated reporting and Weights & Biases integration.
 
