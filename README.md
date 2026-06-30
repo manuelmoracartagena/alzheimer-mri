@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🧠 Deep Learning for Alzheimer’s Diagnosis via Brain Neuroimaging
+# 🧠 Deep Learning for Alzheimer’s Diagnosis <br> via Brain Neuroimaging
 
 <!-- 📄 **Report**: [Insert Link to Paper/Report]   -->
 💻 **Code**: This repository  
